@@ -1,6 +1,6 @@
 # TestBench
 PySpark Application for Distributed Random Data Generation.
-Types of Random data and configuration can be specified in "datagen_schema_config.json"
+Types of Random data and configuration can be specified in "datagen_schema_config.json". Please refer to doc(link above) for more info about the same.
 
 Dependencies :- 
 1) HDP 			(should have been pre-installed in cluster)
@@ -21,6 +21,6 @@ export SPARK_MAJOR_VERSION=2
 spark-submit --master yarn --files datagen_schema_config.json datagen_job.py
 5)Accessing location of data generated :- 
 > beeline
-> !connect <hive jdbc url> jdbc:hive2://ctr-e138-1518143905142-314233-01-000006.hwx.site:2181,ctr-e138-1518143905142-314233-01-000004.hwx.site:2181,ctr-e138-1518143905142-314233-01-000005.hwx.site:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2
+> !connect <hive jdbc url>
 show tables;
 describe <HIVE_TABLE_NAME>;
