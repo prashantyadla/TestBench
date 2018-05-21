@@ -41,8 +41,7 @@
   }],
 
   "Parallelism": {
-    "no_of_executors": 10,
-    "HIVE_location": "fdfd"
+    "no_of_executors": 10
   },
   "Name":{
     "hive_table_name":"DATAGEN_TABLE"

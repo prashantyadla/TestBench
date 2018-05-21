@@ -146,26 +146,20 @@ def main():
 
     seed = range(int(sch["Parallelism"]["no_of_executors"]))
     seed = spark.sparkContext.parallelize(seed)
-    print(seed.count())
+    # print(seed.count())                                        # uncomment to print seed count
     RDD = seed.flatMap(lambda x: aggregate_func(x, sub_schema))
-    print("RDD :- ")
-    print(RDD.count())
+    print("RDD count :- ")
+    print(RDD.count())                                           # printing count of RDD generated
 
-    spark.sql('show databases').show()
-    spark.sql('show tables').show()
+    # spark.sql('show databases').show()                         # uncomment to show databases
+    # spark.sql('show tables').show()                            # uncomment to show tables
     df = spark.createDataFrame(RDD)
-    df.show()
 
-    # df.write.csv('DATA_GEN.csv')
+    # df.write.csv('DATA_GEN.csv')                              # uncomment to write to CSV file
     df = df.withColumnRenamed("Floating Point", "FloatingPoint")
     HIVE_TABLE_NAME = sch["Name"]["hive_table_name"]
-    df.write.mode("overwrite").saveAsTable(HIVE_TABLE_NAME)
+    df.write.mode("overwrite").saveAsTable(HIVE_TABLE_NAME)     # write to HIVE table specified in location
 
-    '''
-    df_load = spark.sql('SELECT * FROM DATAGEN_TABLE')
-    for row in df_load.collect():
-        print(row)
-    '''
 
 if __name__ == "__main__":
     main()
