@@ -1,0 +1,50 @@
+
+{
+  "table": {
+    "n_rows": 800,
+    "n_columns": 4
+  },
+  "columns":[
+    {
+      "name": "Integer",
+      "type": "Int",
+      "range": [
+        1,
+        5
+      ],
+      "distribution": "uniform",
+      "percent_NULL": 2
+    },
+    {
+      "name":"Floating Point",
+       "type": "Float",
+    "mean": 5,
+    "stddev": 0.5,
+    "distribution": "normal",
+    "percent_NULL": 3
+    },
+    {"name":"Strings",
+    "type": "String",
+    "matching_regex": [
+      "aa[a-z]+"
+    ],
+    "limit": 4,
+    "k": 2,
+    "D": 20,
+    "percent_NULL": 3},
+    {
+    "name":"Boolean",
+    "type": "Boolean",
+    "n": 500,
+    "n_true": 400,
+    "percent_NULL": 3
+  }],
+
+  "Parallelism": {
+    "no_of_executors": 10,
+    "HIVE_location": "fdfd"
+  },
+  "Name":{
+    "hive_table_name":"DATAGEN_TABLE"
+  }
+}
