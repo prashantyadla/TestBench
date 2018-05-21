@@ -3,11 +3,11 @@ PySpark Application for Distributed Random Data Generation.
 Types of Random data and configuration can be specified in "datagen_schema_config.json"
 
 Dependencies :- 
-HDP 			(should have been pre-installed in cluster)
-PySpark v2.3		 (should have been pre-installed in cluster)
-Python2.7.5		 (should have been pre-installed in cluster)
-Xeger	(should be manually installed across all nodes)
-Numpy	(should be manually installed across all nodes)
+1) HDP 			(should have been pre-installed in cluster)
+2) PySpark v2.3		 (should have been pre-installed in cluster)
+3) Python2.7.5		 (should have been pre-installed in cluster)
+4) Xeger	(should be manually installed across all nodes)
+5) Numpy	(should be manually installed across all nodes)
 
 
 BootStrap and Onboarding :- 
