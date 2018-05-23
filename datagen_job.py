@@ -21,73 +21,65 @@ from pyspark.sql import *
 # function for random integers
 def int_gen(seed, nb, sub_schema):
     np.random.seed(seed)
-    INT_LIST = []
-    RANGE = sub_schema["range"]
-    DISTRIBUTION = "uniform"
-    if DISTRIBUTION == "uniform":
-        INT_LIST = np.random.uniform(RANGE[0], RANGE[1], nb)
-    for o in range(len(INT_LIST)):
-        INT_LIST[o] = int(INT_LIST[o].item())
-    return INT_LIST
+    int_list = []
+    int_range = sub_schema["range"]
+    distribution = sub_schema["distribution"]
+    if distribution == "uniform":
+        int_list = np.random.uniform(int_range[0], int_range[1], nb)
+    for o in range(len(int_list)):
+        int_list[o] = int(int_list[o].item())
+    return int_list
 
 # function for random floats
 def float_gen(seed, nb,sub_schema):
     np.random.seed(seed)
-    FLOAT_LIST = []
+    float_list = []
     mu =sub_schema["mean"]
     sigma = sub_schema["stddev"]
-    DISTRIBUTION = "normal"
-    if DISTRIBUTION == "normal":
-        FLOAT_LIST = np.random.normal(mu, sigma, nb)
+    distribution = sub_schema["distribution"]
+    if distribution == "normal":
+        float_list = np.random.normal(mu, sigma, nb)
 
     to_native_type = lambda x: x.item()
-    FINAL_FLOAT_LIST = [to_native_type(i) for i in FLOAT_LIST]
-    return FINAL_FLOAT_LIST
+    final_float_list = [to_native_type(i) for i in float_list]
+    return final_float_list
 
 # function for random bools
 def bool_gen(seed, m):
     random.seed(seed)
-    BOOL_LIST = []
+    bool_list = []
     for j in range(m):
         x = random.getrandbits(1)
         if x==1:
-            BOOL_LIST.append(True)
+            bool_list.append(True)
         else:
-            BOOL_LIST.append(False)
-    return BOOL_LIST
+            bool_list.append(False)
+    return bool_list
 
 # function for random strings
 def str_gen(seed,m, subschema):
     random.seed(seed)
     x = Xeger(limit=subschema["limit"])
-    STR_LIST = []
+    str_list = []
     for j in range(m):
-        STR_LIST.append(x.xeger(str(subschema["matching_regex"][0])))
-    return STR_LIST
+        str_list.append(x.xeger(str(subschema["matching_regex"][0])))
+    return str_list
 
 # read external configuration
 def extract_schema():
-    with open("datagen_schema_config.json") as json_data:
+    with open("datagen_schema_config_new.json") as json_data:
         schema = json.load(json_data)
     return schema
 
-# read sub-configuration for each executor
-def extract_subschema():
-    with open("subschema.json") as json_data:
-        sub_schema = json.load(json_data)
-    return sub_schema
-
-# build sub-configuration for each executor
-def build_subschema():
+# build and return sub-configuration for each executor
+def build_and_extract_subschema():
     schema = extract_schema()
     # subschema for aggregate_function
     sub_schema = {}
 
     sub_schema["n_rows_per_exec"] = int(schema["table"]["n_rows"]/schema["Parallelism"]["no_of_executors"])
     sub_schema["column"] = schema["columns"]
-    with open('subschema.json', 'w') as fp:
-        json.dump(sub_schema, fp)
-
+    return sub_schema
 
 def row_convert_func(a, row_gen):
     temp = []
@@ -102,35 +94,32 @@ class wrapper_class:
 
 # random data generating function
 def aggregate_func(seed,sub_schema):
-    ROW_LIST = []
-    I = 0
+    row_list = []
+
     for x in sub_schema["column"]:
-        if(x["name"] == "Integer"):
-            COL1 = int_gen(seed, sub_schema["n_rows_per_exec"], sub_schema["column"][I])
-            ROW_LIST.append(COL1.tolist())
-            I += 1
-        if(x["name"] == "Floating Point"):
-            COL2 = float_gen(seed,sub_schema["n_rows_per_exec"],sub_schema["column"][I])
-            ROW_LIST.append(COL2)
-            I += 1
-        if(x["name"] == "Strings"):
-            COL3 = str_gen(seed,sub_schema["n_rows_per_exec"],sub_schema["column"][I])
-            ROW_LIST.append(COL3)
-            I += 1
-        if(x["name"] == "Boolean"):
-            COL4 = bool_gen(seed,sub_schema["n_rows_per_exec"])
-            ROW_LIST.append(COL4)
-            I += 1
-    NAME_LIST = []
+        if(x["type"] == "Int"):
+            col = int_gen(seed, sub_schema["n_rows_per_exec"], x)
+            row_list.append(col.tolist())
+        if(x["type"] == "Float"):
+            col = float_gen(seed,sub_schema["n_rows_per_exec"],x)
+            row_list.append(col)
+        if(x["type"] == "String"):
+            col = str_gen(seed,sub_schema["n_rows_per_exec"],x)
+            row_list.append(col)
+        if(x["type"] == "Boolean"):
+            col = bool_gen(seed,sub_schema["n_rows_per_exec"])
+            row_list.append(col)
+
+    name_list = []
     for i in sub_schema["column"]:
-        NAME_LIST.append(i["name"])
-    INV_ROW_LIST = np.transpose(ROW_LIST)
-    ROW_GEN = Row(*NAME_LIST)
-    NP_ARRAY = np.array(INV_ROW_LIST)
-    A = np.apply_along_axis(row_convert_func, 1, NP_ARRAY, ROW_GEN)
+        name_list.append(i["name"])
+    inv_row_list = np.transpose(row_list)
+    row_gen = Row(*name_list)
+    np_array = np.array(inv_row_list)
+    A = np.apply_along_axis(row_convert_func, 1, np_array, row_gen)
     unboxer = lambda t: t.row
-    DF_ROW_LIST = [unboxer(i) for i in A]
-    return DF_ROW_LIST
+    df_row_list = [unboxer(i) for i in A]
+    return df_row_list
 
 def main():
     conf = SparkConf().setAppName("DataGenerationApp")
@@ -139,27 +128,14 @@ def main():
         .enableHiveSupport() \
         .getOrCreate()
 
-    build_subschema()
-    sub_schema = extract_subschema()
-
+    sub_schema = build_and_extract_subschema()
     sch = extract_schema()
-
     seed = range(int(sch["Parallelism"]["no_of_executors"]))
-    seed = spark.sparkContext.parallelize(seed)
-    # print(seed.count())                                        # uncomment to print seed count
-    RDD = seed.flatMap(lambda x: aggregate_func(x, sub_schema))
-    print("RDD count :- ")
-    print(RDD.count())                                           # printing count of RDD generated
-
-    # spark.sql('show databases').show()                         # uncomment to show databases
-    # spark.sql('show tables').show()                            # uncomment to show tables
+    seed = spark.sparkContext.parallelize(seed)                 # CREATE RDD OF SEEDS
+    RDD = seed.flatMap(lambda x: aggregate_func(x, sub_schema))  #TRANSFORM EACH SEED TO row_list OF RANDOM DATA
     df = spark.createDataFrame(RDD)
-
-    # df.write.csv('DATA_GEN.csv')                              # uncomment to write to CSV file
-    df = df.withColumnRenamed("Floating Point", "FloatingPoint")
-    HIVE_TABLE_NAME = sch["Name"]["hive_table_name"]
-    df.write.mode("overwrite").saveAsTable(HIVE_TABLE_NAME)     # write to HIVE table specified in location
-
+    HIVE_TABLE_NAME = sch["Name"]["hive_table_name"]        # READ HIVE TABLE LOCATION
+    df.write.mode("overwrite").saveAsTable(HIVE_TABLE_NAME)     # STORE RESULTS IN HIVE TABLE
 
 if __name__ == "__main__":
     main()

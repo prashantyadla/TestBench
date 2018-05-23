@@ -1,12 +1,11 @@
-
 {
   "table": {
-    "n_rows": 800,
+    "n_rows": 1000,
     "n_columns": 4
   },
   "columns":[
     {
-      "name": "Integer",
+      "name": "age",
       "type": "Int",
       "range": [
         1,
@@ -16,14 +15,14 @@
       "percent_NULL": 2
     },
     {
-      "name":"Floating Point",
+      "name":"salary",
        "type": "Float",
     "mean": 5,
     "stddev": 0.5,
     "distribution": "normal",
     "percent_NULL": 3
     },
-    {"name":"Strings",
+    {"name":"email",
     "type": "String",
     "matching_regex": [
       "aa[a-z]+"
@@ -33,7 +32,7 @@
     "D": 20,
     "percent_NULL": 3},
     {
-    "name":"Boolean",
+    "name":"isRetired",
     "type": "Boolean",
     "n": 500,
     "n_true": 400,
@@ -43,7 +42,7 @@
   "Parallelism": {
     "no_of_executors": 10
   },
-  "Name":{
+  "Name": {
     "hive_table_name":"DATAGEN_TABLE"
-  }
+}
 }
