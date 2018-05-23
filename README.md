@@ -20,7 +20,7 @@ export SPARK_MAJOR_VERSION=2
 4) Run the PySpark job “datagen_job.py”
 spark-submit --master yarn --files datagen_schema_config.json datagen_job.py
 5)Accessing location of data generated :- 
-  1)> beeline
-  2)> !connect <hive jdbc url>
-  3)show tables;
-  4)describe <HIVE_TABLE_NAME>;
+  a)> beeline
+  b)> !connect <hive jdbc url>
+  c)show tables;
+  d)describe <HIVE_TABLE_NAME>;
