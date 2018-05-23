@@ -19,7 +19,7 @@ kinit -kt hive.service.keytab hive/ctr-e138-1518143905142-314233-01-000003.hwx.s
 export SPARK_MAJOR_VERSION=2
 4) Run the PySpark job “datagen_job.py”
 spark-submit --master yarn --files datagen_schema_config.json datagen_job.py
-5)Accessing location of data generated :- <br/>
+5)Accessing location of data generated :- \
   a)> beeline <br/>
   b)> !connect <hive jdbc url> <br/>
   c)show tables; <br/>
