@@ -13,6 +13,7 @@ import numpy as np
 import json
 import os
 from xeger import Xeger
+import exrex
 from pyspark import SparkContext
 import random
 from pyspark.sql import *
@@ -59,15 +60,14 @@ def bool_gen(seed, m):
 # function for random strings
 def str_gen(seed,m, subschema):
     random.seed(seed)
-    x = Xeger(limit=subschema["limit"])
     str_list = []
     for j in range(m):
-        str_list.append(x.xeger(str(subschema["matching_regex"][0])))
+        str_list.append(exrex.getone(subschema["matching_regex"][0]))
     return str_list
 
 # read external configuration
 def extract_schema():
-    with open("datagen_schema_config_new.json") as json_data:
+    with open("datagen_schema_config.json") as json_data:
         schema = json.load(json_data)
     return schema
 
@@ -131,8 +131,8 @@ def main():
     sub_schema = build_and_extract_subschema()
     sch = extract_schema()
     seed = range(int(sch["Parallelism"]["no_of_executors"]))
-    seed = spark.sparkContext.parallelize(seed)                 # CREATE RDD OF SEEDS
-    RDD = seed.flatMap(lambda x: aggregate_func(x, sub_schema))  #TRANSFORM EACH SEED TO row_list OF RANDOM DATA
+    seed_rdd = spark.sparkContext.parallelize(seed).repartition(len(seed))      # CREATE RDD OF SEEDS
+    RDD = seed_rdd.flatMap(lambda x: aggregate_func(x, sub_schema))  #TRANSFORM EACH SEED TO row_list OF RANDOM DATA
     df = spark.createDataFrame(RDD)
     HIVE_TABLE_NAME = sch["Name"]["hive_table_name"]        # READ HIVE TABLE LOCATION
     df.write.mode("overwrite").saveAsTable(HIVE_TABLE_NAME)     # STORE RESULTS IN HIVE TABLE

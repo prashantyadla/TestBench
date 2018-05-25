@@ -1,7 +1,6 @@
 {
   "table": {
-    "n_rows": 1000,
-    "n_columns": 4
+    "n_rows": 1000000
   },
   "columns":[
     {
@@ -9,7 +8,7 @@
       "type": "Int",
       "range": [
         1,
-        5
+        50
       ],
       "distribution": "uniform",
       "percent_NULL": 2
@@ -17,17 +16,18 @@
     {
       "name":"salary",
        "type": "Float",
-    "mean": 5,
-    "stddev": 0.5,
+    "mean": 500,
+    "stddev": 10,
     "distribution": "normal",
     "percent_NULL": 3
     },
     {"name":"email",
     "type": "String",
     "matching_regex": [
-      "aa[a-z]+"
+      "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)",
+      "\\b(([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?))\\b"
     ],
-    "limit": 4,
+    "limit": 13,
     "k": 2,
     "D": 20,
     "percent_NULL": 3},
@@ -40,9 +40,9 @@
   }],
 
   "Parallelism": {
-    "no_of_executors": 10
+    "no_of_executors": 100
   },
   "Name": {
-    "hive_table_name":"DATAGEN_TABLE"
+    "hive_table_name":"test_dss_db.person_generated"
 }
 }
