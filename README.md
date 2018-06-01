@@ -12,9 +12,7 @@ Dependencies :-
 
 BootStrap and Onboarding :- 
 1) After cloning the repo into the resource manager (yarn) node/process of your cluster, please install the above dependencies manually across all nodes of your cluster
-2) If it’s a kerberized cluster, please copy HIVE user credentials into the repo using the following commands :-
-cp /etc/security/keytabs/hive.service.keytab .
-kinit -kt hive.service.keytab hive/ctr-e138-1518143905142-314233-01-000003.hwx.site@HWQE.HORTONWORKS.COM
+2) If it’s a kerberized cluster, please ensure kinit and kerberos appropriate kerberos token is authorized
 3) Ensure appropriate Pyspark version
 export SPARK_MAJOR_VERSION=2
 4) Run the PySpark job “datagen_job.py”
