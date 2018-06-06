@@ -6,8 +6,8 @@ Dependencies :-
 1) HDP 			(should have been pre-installed in cluster)
 2) PySpark v2.3		 (should have been pre-installed in cluster)
 3) Python2.7.5		 (should have been pre-installed in cluster)
-4) Xeger	(should be manually installed across all nodes)
-5) Numpy	(should be manually installed across all nodes)
+4) exrex	(should be manually installed across all nodes)
+5) Numpy	(should be manually installed across all nodes (in some HDP clusters it may not be there))
 
 
 BootStrap and Onboarding :- 
