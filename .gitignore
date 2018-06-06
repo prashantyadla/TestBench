@@ -1,2 +1,9 @@
 #Idea related files
 **/.idea
+
+# Mac OS Stuff
+**/.DS_Store
+
+
+# pyc files
+**/*.pyc
