@@ -1,5 +1,5 @@
 {
-  "num_executors": 100,
+  "parallelism": 100,
   "table": {
     "number_of_rows": 1000000,
     "hive_table_name":"person_generated"
