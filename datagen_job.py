@@ -8,7 +8,7 @@ of all or any part of the contents of this software is strictly prohibited.
 """
 
 import numpy as np
-import exrex
+#import exrex
 import random
 from pyspark.sql import *
 from util import Util
@@ -19,7 +19,7 @@ class Generator:
         pass
 
     @staticmethod
-    def generate_integer_list(self, seed, num_values_to_generate, col_schema):
+    def generate_integer_list(seed, num_values_to_generate, col_schema):
         np.random.seed(seed)
         low, high = col_schema["range"]
         distribution = col_schema["distribution"]
@@ -30,7 +30,7 @@ class Generator:
             return [0] * num_values_to_generate
 
     @staticmethod
-    def generate_float_list(self, seed, num_values_to_generate, col_schema):
+    def generate_float_list(seed, num_values_to_generate, col_schema):
         np.random.seed(seed)
         mu = col_schema["mean"]
         sigma = col_schema["stddev"]
@@ -42,7 +42,7 @@ class Generator:
             return [0.0] * num_values_to_generate
 
     @staticmethod
-    def generate_bool_list(self, seed, m):
+    def generate_bool_list(seed, m):
         random.seed(seed)
         bool_list = []
         for j in range(m):
@@ -55,8 +55,9 @@ class Generator:
 
 
     @staticmethod
-    def generate_string_list(self, seed, num_values_to_generate, col_schema):
-        return [exrex.getone(col_schema["matching_regex"][0]) for i in range(num_values_to_generate)]
+    def generate_string_list(seed, num_values_to_generate, col_schema):
+        return ["random" for i in range(num_values_to_generate)]
+        #return [exrex.getone(col_schema["matching_regex"][0]) for i in range(num_values_to_generate)]
 
 
 def aggregate_func(seed, schema, num_rows_per_executor):
@@ -65,7 +66,7 @@ def aggregate_func(seed, schema, num_rows_per_executor):
 
         if col_schema["type"] == "int":
             col = Generator.generate_integer_list(seed, num_rows_per_executor, col_schema)
-            row_list.append(col.tolist())
+            row_list.append(col)
 
         elif col_schema["type"] == "float":
             col = Generator.generate_float_list(seed, num_rows_per_executor, col_schema)
@@ -92,8 +93,7 @@ def aggregate_func(seed, schema, num_rows_per_executor):
     return df_row_list
 
 if __name__ == "__main__":
-    spark = SparkSession.builder.appName("DataGenerationApp") \
-        .enableHiveSupport().getOrCreate()
+    spark = SparkSession.builder.appName("DataGenerationApp").enableHiveSupport().getOrCreate()
 
     schema = Util.extract_schema("datagen_schema_config.json")
     num_rows_per_executor = int(schema["table"]["number_of_rows"]/schema["parallelism"])
@@ -101,5 +101,8 @@ if __name__ == "__main__":
     seed_rdd = spark.sparkContext.parallelize(seed).repartition(len(seed))
     rdd = seed_rdd.flatMap(lambda x: aggregate_func(x, schema, num_rows_per_executor))
     df = spark.createDataFrame(rdd)
+    df.createOrReplaceTempView("tempTable")
     hive_table_name = schema["table"]["hive_table_name"]
-    df.write.mode("overwrite").saveAsTable(hive_table_name)
+    spark.sql("create table " + hive_table_name + " as select * from tempTable")
+    spark.stop()
+    #df.write.mode("overwrite").saveAsTable(hive_table_name)
