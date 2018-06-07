@@ -103,6 +103,6 @@ if __name__ == "__main__":
     df = spark.createDataFrame(rdd)
     df.createOrReplaceTempView("tempTable")
     hive_table_name = schema["table"]["hive_table_name"]
+    spark.sql("drop table if exists " + hive_table_name)
     spark.sql("create table " + hive_table_name + " as select * from tempTable")
     spark.stop()
-    #df.write.mode("overwrite").saveAsTable(hive_table_name)
